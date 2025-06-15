@@ -18,48 +18,47 @@
         <div class="exercise-section">
             <div class="exercise-title">1. Dumbbell Thrusters (Squat to Overhead Press)</div>
             <div class="exercise-reps">3-4 x 10-12</div>
-            <video src="./media/mp4/Dumbbell Squat Press.mp4" controls width="400" height="300" muted loop preload="none"></video>
+            <video src="./media/mp4/Dumbbell Squat Press.mp4" controls width="400" height="300" muted loop preload="none" playsinline webkit-playsinline></video>
         </div>
         
         <div class="exercise-section">
             <div class="exercise-title">2. Front Squats</div>
             <div class="exercise-reps">3 x 10</div>
-            <video src="./media/mp4/Front Squat.mp4" controls width="400" height="300" muted loop preload="none"></video>
+            <video src="./media/mp4/Front Squat.mp4" controls width="400" height="300" muted loop preload="none" playsinline webkit-playsinline></video>
         </div>
         
         <div class="exercise-section">
             <div class="exercise-title">3. Push-Ups</div>
             <div class="exercise-reps">3 x 12</div>
-            <video src="./media/mp4/Pushups.mp4" controls width="400" height="300" muted loop preload="none"></video>
+            <video src="./media/mp4/Pushups.mp4" controls width="400" height="300" muted loop preload="none" playsinline webkit-playsinline></video>
         </div>
         
         <div class="exercise-section">
             <div class="exercise-title">4. Hanging Leg Raises</div>
             <div class="exercise-reps">3 x 15</div>
-            <video src="./media/mp4/Hanging leg raises.mp4" controls width="400" height="300" muted loop preload="none"></video>
+            <video src="./media/mp4/Hanging leg raises.mp4" controls width="400" height="300" muted loop preload="none" playsinline webkit-playsinline></video>
         </div>
         
         <div class="exercise-section">
             <div class="exercise-title">5. Russian Twists</div>
             <div class="exercise-reps">3 x 20 (10/side)</div>
-            <video src="./media/mp4/russian twist.mp4" controls width="400" height="300" muted loop preload="none"></video>
+            <video src="./media/mp4/russian twist.mp4" controls width="400" height="300" muted loop preload="none" playsinline webkit-playsinline></video>
         </div>
         
         <div class="exercise-section">
             <div class="exercise-title">6. Plank</div>
             <div class="exercise-reps">3 x 1 min</div>
-            <video src="./media/mp4/plank.mp4" controls width="400" height="300" muted loop preload="none"></video>
+            <video src="./media/mp4/plank.mp4" controls width="400" height="300" muted loop preload="none" playsinline webkit-playsinline></video>
         </div>
     </div>
 
     <script>
-        // Lazy loading and viewport-based video handling
+        // Mobile-friendly video handling
         document.addEventListener('DOMContentLoaded', function() {
             const videos = document.querySelectorAll('video');
             
-            // Prevent fullscreen on mobile
             videos.forEach(video => {
-                // Prevent fullscreen mode
+                // Prevent fullscreen mode on mobile
                 video.addEventListener('webkitbeginfullscreen', function(e) {
                     e.preventDefault();
                     return false;
@@ -71,7 +70,17 @@
                 });
                 
                 // Prevent default fullscreen behavior
+                video.addEventListener('fullscreenchange', function(e) {
+                    if (document.fullscreenElement === video) {
+                        document.exitFullscreen();
+                    }
+                });
+                
+                // Handle video click for play/pause
                 video.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    
                     if (video.paused) {
                         video.play().catch(err => {
                             console.log('Video play failed:', err);
@@ -79,50 +88,26 @@
                     } else {
                         video.pause();
                     }
-                    e.preventDefault();
+                });
+                
+                // Ensure video doesn't go fullscreen on play
+                video.addEventListener('play', function() {
+                    video.classList.add('playing');
+                });
+                
+                video.addEventListener('pause', function() {
+                    video.classList.remove('playing');
+                });
+                
+                // Load video only when needed
+                video.addEventListener('loadstart', function() {
+                    video.classList.add('loading');
+                });
+                
+                video.addEventListener('canplay', function() {
+                    video.classList.remove('loading');
                 });
             });
-            
-            // Intersection Observer for lazy loading and autoplay
-            if ('IntersectionObserver' in window) {
-                const videoObserver = new IntersectionObserver((entries) => {
-                    entries.forEach(entry => {
-                        const video = entry.target;
-                        if (entry.isIntersecting) {
-                            // Video is in view - load and play
-                            if (video.readyState === 0) {
-                                // Video not loaded yet, load it first
-                                video.load();
-                                video.addEventListener('loadeddata', function() {
-                                    video.play().then(() => {
-                                        video.classList.add('playing');
-                                    }).catch(err => {
-                                        console.log('Video autoplay failed:', err);
-                                    });
-                                }, { once: true });
-                            } else {
-                                // Video already loaded, just play
-                                video.play().then(() => {
-                                    video.classList.add('playing');
-                                }).catch(err => {
-                                    console.log('Video autoplay failed:', err);
-                                });
-                            }
-                        } else {
-                            // Video is out of view - pause
-                            video.pause();
-                            video.classList.remove('playing');
-                        }
-                    });
-                }, {
-                    threshold: 0.3, // Trigger when 30% of video is visible
-                    rootMargin: '0px 0px -50px 0px' // Start loading slightly before video is fully in view
-                });
-
-                videos.forEach(video => {
-                    videoObserver.observe(video);
-                });
-            }
         });
     </script>
 </body>

@@ -108,8 +108,8 @@ a:hover {
 .exercise-section {
     background: rgba(255, 255, 255, 0.95);
     border-radius: 10px;
-    padding: 20px;
-    margin: 15px 0;
+    padding: 25px;
+    margin: 30px 0;
     box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
     border-left: 5px solid #34495e;
     transition: transform 0.3s ease;
@@ -125,31 +125,33 @@ a:hover {
     font-size: 1.1rem;
     color: #2c3e50;
     font-weight: 600;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
 }
 
 .exercise-reps {
     font-size: 1rem;
     color: #5d6d7e;
     font-weight: 500;
-    margin-bottom: 12px;
+    margin-bottom: 20px;
 }
 
 /* Video styling */
 video {
     display: block;
-    margin: 15px auto;
+    margin: 20px auto;
     border-radius: 8px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
     max-width: 100%;
     height: auto;
     transition: transform 0.3s ease;
-    opacity: 0.8;
+    opacity: 0.9;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    /* Prevent fullscreen on mobile */
+    object-fit: contain;
 }
 
 video:hover {
-    transform: scale(1.01);
+    transform: scale(1.02);
     opacity: 1;
 }
 
@@ -167,7 +169,7 @@ hr {
     border-radius: 2px;
 }
 
-/* Responsive design */
+/* Mobile-specific video controls */
 @media (max-width: 768px) {
     .container {
         margin: 10px;
@@ -182,13 +184,29 @@ hr {
         font-size: 1.3rem;
     }
     
-    .exercise-section {
-        padding: 15px;
-    }
-    
     video {
         width: 100%;
         height: auto;
+        max-height: 60vh;
+        /* Prevent fullscreen on mobile */
+        -webkit-playsinline: true;
+        playsinline: true;
+        webkit-playsinline: true;
+    }
+    
+    .exercise-section {
+        padding: 20px;
+        margin: 25px 0;
+    }
+    
+    .exercise-title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+    }
+    
+    .exercise-reps {
+        font-size: 1.1rem;
+        margin-bottom: 25px;
     }
 }
 
