@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="az">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Captcha Practice</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            font-size: 2.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .captcha-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .captcha-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .captcha-title {
+            font-size: 1.5rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .captcha-description {
+            background: #f0f4ff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+
+        .captcha-description h4 {
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .captcha-description ul {
+            margin-left: 20px;
+            color: #666;
+        }
+
+        .security {
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 20px;
+            background: #f8f9fa;
+        }
+
+        .security h6 {
+            color: #555;
+            margin-bottom: 15px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .numbers_part {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .part_description {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            text-align: center;
+            width: 100%;
+        }
+
+        .number_input {
+            height: 45px;
+            width: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 2px solid #3394bc;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            background: white;
+            transition: all 0.2s ease;
+        }
+
+        .number_input.empty {
+            border-color: #dc3545;
+            background: #fff5f5;
+        }
+
+        .divider {
+            margin: 0 4px;
+            font-size: 24px;
+            color: #3394bc;
+            font-weight: bold;
+        }
+
+        .keyboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .keyboard_row {
+            display: flex;
+            gap: 10px;
+        }
+
+        .keyboard .number_input {
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .keyboard .number_input:hover {
+            background-color: #3394bc;
+            color: white;
+            transform: scale(1.05);
+        }
+
+        .keyboard .number_input:active {
+            background: #2a7a9a;
+            transform: scale(0.95);
+        }
+
+        .keyboard_row:last-child .number_input.colorize:first-child {
+            background: #dc3545;
+            color: white;
+            border-color: #dc3545;
+        }
+
+        .keyboard_row:last-child .number_input.colorize:first-child:hover {
+            background: #c82333;
+        }
+
+        .keyboard_row:last-child .number_input.colorize:last-child {
+            background: #ffc107;
+            color: #333;
+            border-color: #ffc107;
+        }
+
+        .keyboard_row:last-child .number_input.colorize:last-child:hover {
+            background: #e0a800;
+        }
+
+        .number_input.small {
+            height: 35px;
+            width: 35px;
+            font-size: 14px;
+        }
+
+        .result {
+            background: #f3f3f3;
+            /* neytral */
+            border: 2px solid #ccc;
+        }
+
+        .result p {
+            margin: 5px 0;
+            color: #333;
+        }
+
+        .result strong {
+            color: #2e7d32;
+        }
+
+        .result-error {
+            background: #ffebee !important;
+        }
+
+        .result-error strong {
+            color: #c62828;
+        }
+
+        .result-success {
+            background: #e8f5e9 !important;
+        }
+
+        .result-error {
+            background: #ffebee !important;
+            border-color: #f44336 !important;
+        }
+
+        .info-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            background: #667eea;
+            color: white;
+            border-radius: 4px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .captcha-grid {
+                grid-template-columns: 1fr;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app" class="container">
+
+        <div class="captcha-card" style="margin-bottom: 30px;">
+            <div class="captcha-title">🎯 Sənin Doğum Tarixin</div>
+
+            <div class="numbers_part">
+                <div class="part_description">Gün</div>
+                <input v-model="realDay" maxlength="2" class="number_input" style="width:60px;">
+            </div>
+
+            <div class="numbers_part">
+                <div class="part_description">Ay</div>
+                <input v-model="realMonth" maxlength="2" class="number_input" style="width:60px;">
+            </div>
+
+            <div class="numbers_part">
+                <div class="part_description">İl</div>
+                <input v-model="realYear" maxlength="4" class="number_input" style="width:80px;">
+            </div>
+        </div>
+
+
+        <h1>🔐 İki Captcha Mexanizması - Practice</h1>
+
+        <div class="captcha-grid">
+            <!-- CAPTCHA 1: Step 1 Captcha (Ay + İl) -->
+            <div class="captcha-card">
+                <div class="captcha-title">📅 Captcha 1: Step 1 (Ay + İl)</div>
+
+                <div class="captcha-description">
+                    <h4>Necə işləyir?</h4>
+                    <ul>
+                        <li><strong>Gün:</strong> 31 (sabit)</li>
+                        <li><strong>Ay:</strong> Siz seçin (Yan, Fev, ...)</li>
+                        <li><strong>İl:</strong> Siz yazın (4 rəqəm)</li>
+                        <li><strong>Format:</strong> 31MMYYYY (8 rəqəm)</li>
+                    </ul>
+                </div>
+
+                <div class="security">
+                    <h6>Doğum tarixinizi seçin:</h6>
+
+                    <!-- Ay seçimi -->
+                    <div class="numbers_part">
+                        <div class="part_description">Ay</div>
+                        <div class="number_input" :class="{'empty': !captcha1Month}">
+                            {{ captcha1Month || '?' }}
+                        </div>
+                    </div>
+
+                    <!-- Ay klaviaturası -->
+                    <div class="keyboard" style="margin-bottom: 30px;">
+                        <div class="keyboard_row" v-for="(row, index) in monthKeyboard" :key="'month-' + index">
+                            <div class="number_input small" v-for="month in row" :key="month"
+                                @click="selectMonth(month)">
+                                {{ month }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- İl seçimi -->
+                    <div class="numbers_part">
+                        <div class="part_description">İl</div>
+                        <div class="number_input" :class="{'empty': captcha1Year.length < 4}">
+                            {{ captcha1Year[0] || '?' }}
+                        </div>
+                        <div class="number_input" :class="{'empty': captcha1Year.length < 4}">
+                            {{ captcha1Year[1] || '?' }}
+                        </div>
+                        <div class="number_input" :class="{'empty': captcha1Year.length < 4}">
+                            {{ captcha1Year[2] || '?' }}
+                        </div>
+                        <div class="number_input" :class="{'empty': captcha1Year.length < 4}">
+                            {{ captcha1Year[3] || '?' }}
+                        </div>
+                    </div>
+
+                    <!-- İl klaviaturası -->
+                    <div class="keyboard">
+                        <div class="keyboard_row" v-for="(row, index) in yearKeyboard1" :key="'year1-' + index">
+                            <div class="number_input" v-for="num in row" :key="num" :class="{'colorize': index === 3}"
+                                @click="editYear1(num)">
+                                <span v-if="num === 'X'">✕</span>
+                                <span v-else-if="num === '<'">⌫</span>
+                                <span v-else>{{ num }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nəticə -->
+                <div class="result" :class="{
+         'result-error': captcha1Correct === false,
+         'result-success': captcha1Correct === true
+     }" v-if="captcha1Month || captcha1Year">
+                    <p><strong>Nəticə:</strong></p>
+                    <p>Gün: {{ realDay || '??' }}</p>
+                    <p>Ay: {{ captcha1Month || '??' }} → {{ captcha1.substring(2, 4) || '??' }}</p>
+                    <p>İl: {{ captcha1Year || '????' }}</p>
+                    <p><strong>Final Kod:</strong> <span
+                            style="font-size: 1.3rem; color: #667eea;">{{ captcha1 || '________' }}</span></p>
+                    <p v-if="captcha1.length === 8" style="color: #4caf50;">✅ Tamamlandı!</p>
+                    <p v-else style="color: #f44336;">⚠️ Davam edin...</p>
+                </div>
+            </div>
+
+            <!-- CAPTCHA 2: Step 2 Captcha (8 rəqəm) -->
+            <div class="captcha-card">
+                <div class="captcha-title">🔢 Captcha 2: Step 2 (8 Rəqəm)</div>
+
+                <div class="captcha-description">
+                    <h4>Necə işləyir?</h4>
+                    <ul>
+                        <li><strong>Format:</strong> DDMMYYYY</li>
+                        <li>Sərbəst 8 rəqəm yazın</li>
+                        <li>Məsələn: 15021995</li>
+                        <li>Rəqəmlər hər dəfə təsadüfi sıralanır</li>
+                    </ul>
+                </div>
+
+                <div class="security">
+                    <h6>8 rəqəmli kod daxil edin:</h6>
+
+                    <!-- 8 rəqəm göstəricisi -->
+                    <div class="numbers_part">
+                        <div class="part_description">Kod (8 rəqəm)</div>
+                        <div class="number_input" :class="{'empty': captcha2.length < 1}" v-for="i in 8"
+                            :key="'digit-' + i">
+                            {{ captcha2[i-1] || '?' }}
+                        </div>
+                    </div>
+
+                    <!-- Rəqəm klaviaturası -->
+                    <div class="keyboard">
+                        <div class="keyboard_row" v-for="(row, index) in yearKeyboard2" :key="'year2-' + index">
+                            <div class="number_input" v-for="num in row" :key="num" :class="{'colorize': index === 3}"
+                                @click="editCaptcha2(num)">
+                                <span v-if="num === 'X'">✕</span>
+                                <span v-else-if="num === '<'">⌫</span>
+                                <span v-else>{{ num }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nəticə -->
+                <div class="result" :class="{
+         'result-error': captcha2Correct === false,
+         'result-success': captcha2Correct === true
+     }" v-if="captcha2">
+                    <p><strong>Daxil edilən kod:</strong> <span
+                            style="font-size: 1.3rem; color: #667eea;">{{ captcha2 || '________' }}</span></p>
+                    <p v-if="captcha2.length === 8">
+                        <strong>Təhlil:</strong><br>
+                        Gün: {{ captcha2.substring(0, 2) }}<br>
+                        Ay: {{ captcha2.substring(2, 4) }}<br>
+                        İl: {{ captcha2.substring(4, 8) }}
+                    </p>
+                    <p v-if="captcha2.length === 8" style="color: #4caf50;">✅ Tamamlandı!</p>
+                    <p v-else style="color: #f44336;">⚠️ {{ 8 - captcha2.length }} rəqəm qalıb...</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Müqayisə bölməsi -->
+        <div class="captcha-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+            <h2 style="text-align: center; margin-bottom: 20px;">📊 Müqayisə</h2>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                    <h3 style="margin-bottom: 10px;">Captcha 1 (Step 1)</h3>
+                    <ul style="line-height: 1.8;">
+                        <li>✅ Ay seçimi (dropdown)</li>
+                        <li>✅ İl yazma (4 rəqəm)</li>
+                        <li>✅ Gün sabit (31)</li>
+                        <li>✅ Strukturlaşdırılmış</li>
+                        <li>📝 Format: 31MMYYYY</li>
+                    </ul>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); padding: 20px; border-radius: 10px;">
+                    <h3 style="margin-bottom: 10px;">Captcha 2 (Step 2)</h3>
+                    <ul style="line-height: 1.8;">
+                        <li>🔢 Sərbəst 8 rəqəm</li>
+                        <li>🎲 Təsadüfi klaviatura</li>
+                        <li>✏️ Manuel yazma</li>
+                        <li>⚡ Sadə və sürətli</li>
+                        <li>📝 Format: DDMMYYYY</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        new Vue({
+            el: '#app',
+            data: {
+                // Captcha 1 (Step 1)
+                captcha1Month: '',
+                captcha1Year: '',
+                captcha1: '',
+
+                realDay: '',
+                realMonth: '',
+                realYear: '',
+
+                // Captcha 2 (Step 2)
+                captcha2: ''
+            },
+            computed: {
+
+                captcha1Correct() {
+                    if (this.realYear.length < 4 || this.realMonth.length < 2 || this.realDay.length < 2)
+                        return null;
+                    if (!this.captcha1Month || this.captcha1Year.length !== 4)
+                        return null;
+                    
+                    // Convert month abbreviation to number
+                    const monthMap = {
+                        "Yan.": "01", "Fev.": "02", "Mar.": "03", "Apr.": "04",
+                        "May": "05", "İyun": "06", "İyul": "07", "Avq.": "08",
+                        "Sen.": "09", "Okt.": "10", "Noy.": "11", "Dek.": "12"
+                    };
+                    const monthNum = monthMap[this.captcha1Month] || "";
+                    
+                    // Compare month (converted from abbreviation) and year
+                    const monthMatch = this.realMonth.padStart(2, '0') === monthNum;
+                    const yearMatch = this.realYear === this.captcha1Year;
+                    
+                    return monthMatch && yearMatch;
+                },
+
+                captcha2Correct() {
+                    if (this.realYear.length < 4 || this.realMonth.length < 2 || this.realDay.length < 2)
+                        return null;
+                    if (this.captcha2.length !== 8) return null;
+                    
+                    // Build expected format: DDMMYYYY (with padding)
+                    const expected = 
+                        this.realDay.padStart(2, '0') + 
+                        this.realMonth.padStart(2, '0') + 
+                        this.realYear;
+                    
+                    return this.captcha2 === expected;
+                },
+
+                monthKeyboard() {
+                    const months = ["Yan.", "Fev.", "Mar.", "Apr.", "May", "İyun",
+                        "İyul", "Avq.", "Sen.", "Okt.", "Noy.", "Dek."
+                    ];
+                    const keyboardArray = [];
+                    const chunkSize = 4;
+
+                    for (let i = 0; i < months.length; i += chunkSize) {
+                        keyboardArray.push(months.slice(i, i + chunkSize));
+                    }
+
+                    return keyboardArray;
+                },
+                yearKeyboard1() {
+                    return this.generateRandomKeyboard();
+                },
+                yearKeyboard2() {
+                    return this.generateRandomKeyboard();
+                }
+            },
+            mounted() {
+                // Load saved date from localStorage
+                const savedDay = localStorage.getItem('realDay');
+                const savedMonth = localStorage.getItem('realMonth');
+                const savedYear = localStorage.getItem('realYear');
+                
+                if (savedDay) this.realDay = savedDay;
+                if (savedMonth) this.realMonth = savedMonth;
+                if (savedYear) this.realYear = savedYear;
+            },
+            watch: {
+                captcha1Month() {
+                    this.updateCaptcha1();
+                },
+                captcha1Year() {
+                    this.updateCaptcha1();
+                },
+                realDay() {
+                    this.updateCaptcha1();
+                    this.saveDateToStorage();
+                },
+                realMonth() {
+                    this.saveDateToStorage();
+                },
+                realYear() {
+                    this.saveDateToStorage();
+                }
+            },
+            methods: {
+                saveDateToStorage() {
+                    // Save date values to localStorage
+                    if (this.realDay) {
+                        localStorage.setItem('realDay', this.realDay);
+                    }
+                    if (this.realMonth) {
+                        localStorage.setItem('realMonth', this.realMonth);
+                    }
+                    if (this.realYear) {
+                        localStorage.setItem('realYear', this.realYear);
+                    }
+                },
+                generateRandomKeyboard() {
+                    let nums = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9];
+                    const ranNums = [];
+
+                    // Shuffle
+                    while (nums.length) {
+                        const j = Math.floor(Math.random() * nums.length);
+                        ranNums.push(nums[j]);
+                        nums.splice(j, 1);
+                    }
+
+                    const keyboardArray = [];
+                    const chunkSize = 3;
+
+                    for (let i = 0; i < ranNums.length; i += chunkSize) {
+                        keyboardArray.push(ranNums.slice(i, i + chunkSize));
+                    }
+
+                    keyboardArray[3].unshift("X");
+                    keyboardArray[3].push("<");
+
+                    return keyboardArray;
+                },
+
+                // Captcha 1 metodları
+                selectMonth(month) {
+                    this.captcha1Month = month;
+                    this.updateCaptcha1();
+                },
+                editYear1(val) {
+                    if (val === 'X') {
+                        this.captcha1Year = '';
+                    } else if (val === '<') {
+                        this.captcha1Year = this.captcha1Year.slice(0, -1);
+                    } else if (this.captcha1Year.length < 4) {
+                        this.captcha1Year += val;
+                    }
+                    this.updateCaptcha1();
+                },
+                updateCaptcha1() {
+                    if (this.realDay.length === 2 && this.captcha1Month && this.captcha1Year.length === 4) {
+                        this.captcha1 =
+                            this.realDay.padStart(2, '0') +
+                            this.captcha1Month +
+                            this.captcha1Year;
+                    } else {
+                        this.captcha1 = '';
+                    }
+                },
+
+                // Captcha 2 metodları
+                editCaptcha2(n) {
+                    if (n === 'X') {
+                        this.captcha2 = '';
+                    } else if (n === '<') {
+                        if (this.captcha2.length > 0) {
+                            this.captcha2 = this.captcha2.slice(0, -1);
+                        }
+                    } else if (this.captcha2.length < 8) {
+                        this.captcha2 = this.captcha2 + n;
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
